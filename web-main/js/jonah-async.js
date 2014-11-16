@@ -5,9 +5,14 @@ var map;
 var highlightedRoute;
 var iconSets;
 
+var lastZoom = -1;
+var lastResponse = undefined;
+
 var rad = function(x) {
   return x * Math.PI / 180;
 };
+
+var simplePolys, complexPolys;
 
 var getDistance = function(p1, p2) {
   var R = 6378137; // Earth’s mean radius in meter
@@ -45,24 +50,20 @@ function mult(p, scl) {
     }
     
     return new google.maps.LatLng(lat, lng);
-}     
-        
-function getDangerValue(latlng) {
-    return Math.random() * 10;
 }
 
-function defineIcons(latlngs, offset, bounds) {
+function defineIcons(points, offset, bounds) {
     var icons = [];
     var increment = !bounds ? 1 : Math.floor(10/(map.getZoom() - 7));
-    for (var i = 0; i < latlngs.length-increment; i+=increment) {
-        var latlng = latlngs[i];
+    for (var i = 0; i < points.length-increment; i+=increment) {
+        var point = points[i];
         var dist = 0;
         for (var j = 0; j < increment; j++) {
-            dist += getDistance(latlngs[i+j], latlngs[i+j+1]);
+            dist += getDistance(points[i+j], points[i+j+1]);
         }
         
-        if (!bounds || bounds.contains(latlng)) {
-            var dv = getDangerValue(latlng);
+        if (!bounds || bounds.contains(point.latlng)) {
+            var dv = point.dangerValue;
             icons.push({
                 icon: {
                     path: 'M 0,-.1 0,.1',
@@ -83,25 +84,12 @@ function defineIcons(latlngs, offset, bounds) {
     return icons;
 }
 
-var lastZoom = -1;
-var lastResponse = undefined;
-
-/*window.onresize = function(event) {
-    var mapElem = document.getElementById("map-canvas");
-    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-    mapElem.style.height = (h - mapElem.offsetTop - 5) + "px";
-};*/
-
 function initialize() {
-  /*  var mapElem = document.getElementById("map-canvas");
-    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-    mapElem.style.height = (h - mapElem.offsetTop - 5) + "px";
-    */
   directionsDisplays = [];
-  var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+  var durham = new google.maps.LatLng(35.9886, -78.9072);
   var mapOptions = {
     zoom:7,
-    center: chicago
+    center: durham
   };
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
@@ -119,41 +107,38 @@ function setUpMap(newRoutes) {
     }
     directionsDisplays = [];
     
-    iconSets = []
+    iconSets = []; //the only thing this is used for doesn't work
 
     var bounds = map.getBounds();
-    var zoom = map.getZoom();   
+    var zoom = map.getZoom();
 
-    console.log(lastZoom);
     if (zoom > 8 || lastZoom > 8 || lastZoom < 0) {
-        var difficulties = [];
+        var difficulties = [];      //should be called dangers
         for (var routeNum = 0; routeNum < lastResponse.routes.length; routeNum++) {
             var icons = [];
-            var offset = {off:0,ct:0,dv:0};
-
-            if (zoom > 8) {
-    //            var disp = add(bounds.getNorthEast(), mult(bounds.getCenter(), -1));
-    //            var extendedBounds = new google.maps.LatLngBounds(add(bounds.getCenter(),mult(disp, -1.2)), add(bounds.getCenter(), mult(disp, 1.2)));
-
-                for (var i in lastResponse.routes[routeNum].legs) {
-                    for (var j in lastResponse.routes[routeNum].legs[i].steps) {
-                        icons = icons.concat(defineIcons(lastResponse.routes[routeNum].legs[i].steps[j].lat_lngs, offset, bounds));
-                    }
-                }
-            } else if (lastZoom > 8 || lastZoom < 0) {
-                icons = defineIcons(lastResponse.routes[routeNum].overview_path, offset);
-            }
-
-            //Make sure the offsets are scaled to correctly place the dots
-            for (var i in icons) {
-                var icon = icons[i];
-
-                icon.offset /= 1.0 * offset.off;
-                icon.offset = '' + icon.offset*100 + '%';
-            }
+            var offset = {off:0,ct:0,dv:0}; //offset makes no sense as the name for this, it is for passing back some information
             
-            iconSets.push(icons);
+            if (complexPolys[routeNum] || simplePolys[routeNum]) {
 
+                if (complexPolys[routeNum] && zoom > 8) {
+        //            var disp = add(bounds.getNorthEast(), mult(bounds.getCenter(), -1));
+        //            var extendedBounds = new google.maps.LatLngBounds(add(bounds.getCenter(),mult(disp, -1.2)), add(bounds.getCenter(), mult(disp, 1.2)));
+
+                    icons = defineIcons(complexPolys[routeNum], offset);
+                } else if (lastZoom > 8 || lastZoom < 0) {
+                    icons = defineIcons(simplePolys[routeNum], offset);
+                }
+
+                //Make sure the offsets are scaled to correctly place the dots
+                for (var i in icons) {
+                    var icon = icons[i];
+
+                    icon.offset /= 1.0 * offset.off;
+                    icon.offset = '' + icon.offset*100 + '%';
+                }
+
+                iconSets.push(icons);   //this doesn't work and I don't know why =*(
+            }
             var polyLineOptions = { strokeOpacity: .5,
                                    strokeWeight: 5,
                                   icons: icons,
@@ -162,12 +147,9 @@ function setUpMap(newRoutes) {
                                    map: map,
                                    path: lastResponse.routes[routeNum].overview_path
                                   };
-            console.log(polyLineOptions);
             
             directionsDisplays[routeNum] = new google.maps.Polyline(polyLineOptions);
-            //directionsDisplays[routeNum].setOptions({polylineOptions: polyLineOptions, preserveViewport:(!newRoutes ? true : false)});
-            //directionsDisplays[routeNum].setDirections(lastResponse);
-            //directionsDisplays[routeNum].setRouteIndex(routeNum);
+            
             (function (num){
                 google.maps.event.addListener(directionsDisplays[routeNum], 'click', function() {
                     highlightedRoute = num;
@@ -202,7 +184,6 @@ function setUpMap(newRoutes) {
 }
 
 function highlight(newHRoute) {
-    console.log(highlightedRoute);
     highlightedRoute = newHRoute;
             
     var icons = iconSets[highlightedRoute];
@@ -211,17 +192,31 @@ function highlight(newHRoute) {
         icons[i].strokeOpacity = 1;
     }
 
-//    console.log("highlighted: "+highlightedRoute);
-
     directionsDisplays[highlightedRoute].setOptions({ strokeOpacity: 1,
                                    strokeWeight: 7,
                                   icons: icons,
-                                  strokeColor: '#00ff00',
+                                  strokeColor: '#0044ff',
                                                                       
                                    map: map,
                                    path: lastResponse.routes[highlightedRoute].overview_path
                                   });
-    console.log(directionsDisplays[highlightedRoute]);
+}
+
+
+
+function stitchComplexPath(route) {
+    for (var i in route.legs) {
+        for (var j in route.legs[i].steps) {
+            icons = icons.concat(defineIcons(route.legs[i].steps[j].lat_lngs, offset, bounds));
+        }
+    }
+    
+    return latlngs;
+}
+
+function getValuesForPath(latlngs, callback) {
+    var primitiveValues = jQuery.map(latlngs, function(latlng) { return [latlng.lat(), latlng.lng()];});
+    $.post("/process", primitiveValues, callback);
 }
 
 function calcRoute() {
@@ -238,7 +233,29 @@ function calcRoute() {
       directionsService.route(request, function(response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
             lastResponse = response;
-            setUpMap(true);
+            //setUpMap(true);
+            simplePolys = [];
+            complexPolys = [];
+            
+            for(var routeNum in response.routes) {
+                var route = response.routes[routeNum];
+                //maybe a barebones setUpMap() with no data
+                getValuesForPath(route.overview_path, function(dangerValues) {
+                    simplePolys[routeNum] = [];
+                    for (var i = 0; i < dangerValues.length; i++) {
+                        simplePolys[routeNum].push({latlng:route.overview_path[i],dangerValue:dangerValues[i]});
+                    }
+                    setUpMap();
+                });
+                var complexPoints = stitchComplexPath(route);
+                getValuesForPath(complexPoints, function(dangerValues) {
+                    complexPolys[routeNum] = [];
+                    for (var i = 0; i < dangerValues.length; i++) {
+                        complexPolys[routeNum].push({latlng:complexPoints[i],dangerValue:dangerValues[i]});
+                    }
+                    setUpMap();
+                }
+            }
         }
       });
     } catch(e) {
