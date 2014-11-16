@@ -214,7 +214,7 @@ function stitchComplexPath(route) {
         }
     }
     
-    return latlngs;
+    return path;
 }
 
 function getValuesForPath(latlngs, callback) {

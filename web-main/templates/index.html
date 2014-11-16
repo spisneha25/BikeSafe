@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="UTF-8">
+        <script src="{{ url_for('static', filename='js/jquery-2.1.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+        <script src="{{ url_for('static', filename='js/epoly_v3.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jonah-async.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <title>Bike Safe - Saving Lives</title>
+    </head>
+
+    <body>
+        <div class="background-image"></div>
+        <div class="container text-center">
+            <div class="jumbotron" style="background-color: rgba(255,248,227, 0.7);">
+                <h1>Welcome to Bike Safe.</h1>
+                <p>We save lives.</p>
+            </div>
+                <div id="map-container">
+                    <div id="panel">
+                        <form id="directions_input" onsubmit="return calcRoute();">
+                        <label for="start">Start: </label>
+                        <div id="startDiv" class="tbDiv">
+                            <input type="text" class="txt" name="start" id="start" autocomplete="off" spellcheck="false"></input>
+                        </div>
+                        <label for="end">End: </label>
+                        <div id="endDiv" class="tbDiv">
+                            <input type="text" class="txt" name="end" id="end" autocomplete="off" spellcheck="false"></input>
+                        </div>
+                        <button type="submit" value="Search"><img src="{{url_for('static', filename='data/search.svg') }}" style="width:40px;height:40px;"></img></button>
+                        </form>
+                        <div id="autocomplete-results"></div>
+                    </div>
+                    <div id="map-canvas"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
