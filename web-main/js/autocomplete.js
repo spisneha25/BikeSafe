@@ -3,13 +3,25 @@ var service;
 $(document).ready(function() {
     service = new google.maps.places.AutocompleteService();
     
+    $("input.txt").keypress(function() {
+        console.log(this.value);
+        service.getQueryPredictions({ input: this.value }, handleAutocompleteData);
+    }).focusout(function() {
+        $("#autocomplete-results").slideUp();
+    });
 });
 
-/*$("input.txt").change(function() {
-//      service.getQueryPredictions({ input: $(this).value }, callback);
-    })*/
-
-$("input.txt").focusout(function() {
-        $("#autocomplete-results").slideUp();
-        alert("here!");
-    });
+function handleAutocompleteData(predictions, status) {
+    if (status != google.maps.places.PlacesServiceStatus.OK) {
+        alert(status);
+        return;
+    }
+    
+    $("#autocomplete-results").empty()
+        .append(jQuery.map(predictions,function(prediction) {
+            return "<div class='prediction-div'>" + prediction.terms[0].value + (prediction.terms.length > 1 ? "<span class='region'>" + prediction.terms[1].value + "</span>" : "") + "</div>";
+        }))
+        .slideDown();
+    
+    console.log(predictions);
+}

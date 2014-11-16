@@ -46,9 +46,9 @@ body {
     z-index: 5;
     background-color: #fff;
     padding: 5px;
+    padding-bottom: 0px;
     border: 1px solid #999;
-/*    display: none;*/
-    height: 300px;
+    display: none;
     overflow: hidden;
 }
 
@@ -68,6 +68,24 @@ input.txt {
     margin: 0px;
     outline: none;
     display: inline-block;
+}
+
+.prediction-div {
+    height:30px;
+    font-weight: bold;
+/*    border-bottom: 1px solid gray;*/
+    text-align: left;
+    text-overflow: ellipsis;
+    width:100%;
+    white-space: nowrap
+}
+
+span.region {
+    font-size: 11px;
+    font-weight: lighter;
+    color: #555555;
+    padding-left: 10px;
+    max-width: 100%;
 }
 
 #startDiv {
