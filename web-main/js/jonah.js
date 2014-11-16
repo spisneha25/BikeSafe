@@ -1,6 +1,9 @@
-var directionsDisplay;
+var directionsDisplays;
 var directionsService = new google.maps.DirectionsService();
 var map;
+
+var highlightedRoute;
+var iconSets;
 
 var rad = function(x) {
   return x * Math.PI / 180;
@@ -63,13 +66,15 @@ function defineIcons(latlngs, offset, bounds) {
             icons.push({
                 icon: {
                     path: 'M 0,-.1 0,.1',
-                    strokeOpacity: 1,
+                    strokeOpacity: .5,
                     scale: dist/10000,
                     strokeWeight: dv*2.2,
                     strokeColor: '#' + (Math.floor(dv * 25)).toString(16) + 'a0a0'
                 },
                 offset: offset.off
             });
+            offset.dv += dv;
+            offset.ct += 1;
         }
         
         offset.off += dist;
@@ -92,61 +97,109 @@ function initialize() {
     var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
     mapElem.style.height = (h - mapElem.offsetTop - 5) + "px";
     */
-  directionsDisplay = new google.maps.DirectionsRenderer();
+  directionsDisplays = [];
   var chicago = new google.maps.LatLng(41.850033, -87.6500523);
   var mapOptions = {
     zoom:7,
     center: chicago
   };
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-  directionsDisplay.setMap(map);
 
-  google.maps.event.addListener(map, 'bounds_changed', function() {
+  google.maps.event.addListener(map, 'bounds_changed', setUpMap);
+
+}
+
+function setUpMap(newRoutes) {
     if (!lastResponse) {
         return;
     }
     
+    iconSets = []
+
     var bounds = map.getBounds();
     var zoom = map.getZoom();   
 
-    var icons = [];
-    var offset = {off:0};
-      
     console.log(lastZoom);
     if (zoom > 8 || lastZoom > 8 || lastZoom < 0) {
-        if (zoom > 8) {
-            var disp = add(bounds.getNorthEast(), mult(bounds.getCenter(), -1));
-            var extendedBounds = new google.maps.LatLngBounds(add(bounds.getCenter(),mult(disp, -1.2)), add(bounds.getCenter(), mult(disp, 1.2)));
-            console.log("zoomed!");
+        var difficulties = [];
+        for (var routeNum = 0; routeNum < lastResponse.routes.length; routeNum++) {
+            var icons = [];
+            var offset = {off:0,ct:0,dv:0};
 
-            for (var i in lastResponse.routes[0].legs) {
-                for (var j in lastResponse.routes[0].legs[i].steps) {
-                    icons = icons.concat(defineIcons(lastResponse.routes[0].legs[i].steps[j].lat_lngs, offset, bounds));
+            if (zoom > 8) {
+    //            var disp = add(bounds.getNorthEast(), mult(bounds.getCenter(), -1));
+    //            var extendedBounds = new google.maps.LatLngBounds(add(bounds.getCenter(),mult(disp, -1.2)), add(bounds.getCenter(), mult(disp, 1.2)));
+
+                for (var i in lastResponse.routes[routeNum].legs) {
+                    for (var j in lastResponse.routes[routeNum].legs[i].steps) {
+                        icons = icons.concat(defineIcons(lastResponse.routes[routeNum].legs[i].steps[j].lat_lngs, offset, bounds));
+                    }
+                }
+            } else if (lastZoom > 8 || lastZoom < 0) {
+                icons = defineIcons(lastResponse.routes[routeNum].overview_path, offset);
+            }
+
+            //Make sure the offsets are scaled to correctly place the dots
+            for (var i in icons) {
+                var icon = icons[i];
+
+                icon.offset /= 1.0 * offset.off;
+                icon.offset = '' + icon.offset*100 + '%';
+            }
+            
+            iconSets.push(icons);
+
+            var polyLineOptions = { strokeOpacity: .7,
+                                   strokeWeight: 1,
+                                  icons: icons};
+            console.log(polyLineOptions);
+            directionsDisplays[routeNum].setOptions({polylineOptions: polyLineOptions, preserveViewport:(!newRoutes ? true : false)});
+            directionsDisplays[routeNum].setDirections(lastResponse);
+            directionsDisplays[routeNum].setRouteIndex(routeNum);
+            (function (){
+                google.maps.event.addListener(directionsDisplays[routeNum], 'click', function() {
+                    alert("erewrw "+routeNum);
+                });
+                })();
+
+            
+            difficulties.push(offset.dv/offset.ct);
+        }
+        
+        if (newRoutes) {
+            
+            var min = difficulties[0];
+            var minIndex = 0;
+
+            for (var i = 1; i < difficulties.length; i++) {
+                if (difficulties[i] < min) {
+                    minIndex = i;
+                    min = difficulties[i];
                 }
             }
-        } else if (lastZoom > 8 || lastZoom < 0) {
-            icons = defineIcons(lastResponse.routes[0].overview_path, offset);
+            
+            highlight(minIndex);
+        } else {
+            highlight(highlightedRoute);
         }
-
-        //Make sure the offsets are scaled to correctly place the dots
-        for (var i in icons) {
-            var icon = icons[i];
-
-            icon.offset /= 1.0 * offset.off;
-            icon.offset = '' + icon.offset*100 + '%';
-        }
-
-        var polyLineOptions = { strokeOpacity: 1,
-                               strokeWeight: 1,
-                              icons: icons};
-        console.log(polyLineOptions);
-        directionsDisplay.setOptions({polylineOptions: polyLineOptions, preserveViewport:true});
-        directionsDisplay.setDirections(lastResponse);
     }
-
     lastZoom = zoom;
-  });
+}
 
+function highlight(newHRoute) {
+    highlightedRoute = newHRoute;
+            
+    var icons = iconSets[highlightedRoute];
+
+    /*for (var i = 0; i < icons.length; i++) {
+        icons[i].strokeOpacity = 1;
+    }*/
+
+//    console.log("highlighted: "+highlightedRoute);
+
+    directionsDisplays[highlightedRoute].setOptions({polylineOptions: {strokeOpacity: 1, strokeWeight: 3, icons: icons}, preserveViewport: true});
+    directionsDisplays[highlightedRoute].setDirections(lastResponse);
+    directionsDisplays[highlightedRoute].setRouteIndex(highlightedRoute);
 }
 
 function calcRoute() {
@@ -161,31 +214,17 @@ function calcRoute() {
           provideRouteAlternatives: true
       };
       directionsService.route(request, function(response, status) {
-          console.log(status);
         if (status == google.maps.DirectionsStatus.OK) {
             lastResponse = response;
-            var icons = [];
-            var offset = {off:0};
-            /*for (var i in response.routes[0].legs) {
-                for (var j in response.routes[0].legs[i].steps) {
-                    icons = icons.concat(defineIcons(response.routes[0].legs[i].steps[j].lat_lngs, offset));
-                }
-            }*/
-            icons = defineIcons(response.routes[0].overview_path, offset);
-
-            for (var i in icons) {
-                var icon = icons[i];
-
-                icon.offset /= 1.0 * offset.off;
-                icon.offset = '' + icon.offset*100 + '%';
+            for (var i = 0; i < directionsDisplays.length; i++) {
+                directionsDisplays[i].setMap(null);
             }
-
-            var polyLineOptions = { strokeOpacity: 1,
-                                   strokeWeight: 1,
-                                  icons: icons};
-            console.log(polyLineOptions);
-            directionsDisplay.setOptions({polylineOptions: polyLineOptions, preserveViewport:false});
-            directionsDisplay.setDirections(response);
+            directionsDisplays = [];
+            for (var i = 0; i < lastResponse.routes.length; i++) {
+                directionsDisplays.push(new google.maps.DirectionsRenderer());
+                directionsDisplays[i].setMap(map);
+            }
+            setUpMap(true);
         }
       });
     } catch(e) {

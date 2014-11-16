@@ -4,8 +4,9 @@ $(document).ready(function() {
     service = new google.maps.places.AutocompleteService();
     
     $("input.txt").keypress(function() {
-        console.log(this.value);
-        service.getQueryPredictions({ input: this.value }, handleAutocompleteData);
+        if(this.value.length > 0) {
+            service.getQueryPredictions({ input: this.value, bounds:map.getBounds() }, handleAutocompleteData);
+        }
     }).focusout(function() {
         $("#autocomplete-results").slideUp();
     });
@@ -13,7 +14,6 @@ $(document).ready(function() {
 
 function handleAutocompleteData(predictions, status) {
     if (status != google.maps.places.PlacesServiceStatus.OK) {
-        alert(status);
         return;
     }
     
