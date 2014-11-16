@@ -2,9 +2,6 @@ var directionsDisplay;
 var directionsService = new google.maps.DirectionsService();
 var map;
 
-<<<<<<< HEAD
-
-
 var rad = function(x) {
   return x * Math.PI / 180;
 };
