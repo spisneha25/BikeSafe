@@ -1,32 +1,36 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <meta charset="UTF-8">
-        <script src="js/bootstrap.min.js"></script>
         <script src="js/jquery-2.1.1.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
         <script src="js/jonah.js"></script>
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <link rel="stylesheet" href="css/style.css">
         <title>Bike Safe - Saving Lives</title>
         
-    <style>
-      html, body, #map-canvas {
-        height: 100%;
-        margin: 0px;
-        padding: 0px
-      }
-      #panel {
-        position: absolute;
-        top: 5px;
-        left: 50%;
-        margin-left: -180px;
-        z-index: 5;
-        background-color: #fff;
-        padding: 5px;
-        border: 1px solid #999;
-      }
-    </style>
+        <style>
+            #map-canvas {
+                height: 600px;
+                width: 100%;
+                margin: 0px;
+                padding: 0px;
+                border-radius: 10px;
+                opacity: 0.9;
+            }
+            #panel {
+                width: 340px;
+                margin-left: auto;
+                margin-right: auto;
+                z-index: 5;
+                background-color: #fff;
+                padding: 5px;
+                border: 1px solid #999;
+            }
+        </style>
     </head>
 
     <body>
@@ -36,13 +40,31 @@
                 <h1>Welcome to Bike Safe.</h1>
                 <p>We save lives.</p>
             </div>
-            <div id="panel">
-                <b>Start: </b>
-                <select id="start" onchange="calcRoute();">
+        </div>
+        <div class="container-fluid" style="background-color: rgba(255, 230, 100, 0.7);">
+            <div class="container">
+                <div id="panel">
+                    <b>Start: </b>
+                    <select id="start" onchange="calcRoute();">
+                          <option value="chicago, il">Chicago</option>
+                          <option value="st louis, mo">St Louis</option>
+                          <option value="joplin, mo">Joplin, MO</option>
+                          <option value="oklahoma city, ok">Oklahoma City</option>
+                          <option value="amarillo, tx">Amarillo</option>
+                          <option value="gallup, nm">Gallup, NM</option>
+                          <option value="flagstaff, az">Flagstaff, AZ</option>
+                          <option value="winona, az">Winona</option>
+                          <option value="kingman, az">Kingman</option>
+                          <option value="barstow, ca">Barstow</option>
+                          <option value="san bernardino, ca">San Bernardino</option>
+                          <option value="los angeles, ca">Los Angeles</option>
+                    </select>
+                    <b>End: </b>
+                    <select id="end" onchange="calcRoute();">
                       <option value="chicago, il">Chicago</option>
                       <option value="st louis, mo">St Louis</option>
                       <option value="joplin, mo">Joplin, MO</option>
-                      <option value="oklahoma city, ok">Oklahoma City</option>
+                      <option value="7330 Piney Branch Road 20912">Takoma Park</option>
                       <option value="amarillo, tx">Amarillo</option>
                       <option value="gallup, nm">Gallup, NM</option>
                       <option value="flagstaff, az">Flagstaff, AZ</option>
@@ -51,24 +73,10 @@
                       <option value="barstow, ca">Barstow</option>
                       <option value="san bernardino, ca">San Bernardino</option>
                       <option value="los angeles, ca">Los Angeles</option>
-                </select>
-                <b>End: </b>
-                <select id="end" onchange="calcRoute();">
-                  <option value="chicago, il">Chicago</option>
-                  <option value="st louis, mo">St Louis</option>
-                  <option value="joplin, mo">Joplin, MO</option>
-                  <option value="7330 Piney Branch Road 20912">Takoma Park</option>
-                  <option value="amarillo, tx">Amarillo</option>
-                  <option value="gallup, nm">Gallup, NM</option>
-                  <option value="flagstaff, az">Flagstaff, AZ</option>
-                  <option value="winona, az">Winona</option>
-                  <option value="kingman, az">Kingman</option>
-                  <option value="barstow, ca">Barstow</option>
-                  <option value="san bernardino, ca">San Bernardino</option>
-                  <option value="los angeles, ca">Los Angeles</option>
-                </select>
+                    </select>
+                </div>
+                <div id="map-canvas"></div>
             </div>
-            <div id="map-canvas"></div>
         </div>
     </body>
 </html>
