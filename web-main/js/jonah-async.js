@@ -205,9 +205,12 @@ function highlight(newHRoute) {
 
 
 function stitchComplexPath(route) {
+    path = [];
     for (var i in route.legs) {
         for (var j in route.legs[i].steps) {
-            icons = icons.concat(defineIcons(route.legs[i].steps[j].lat_lngs, offset, bounds));
+            for (var k in route.legs[i].steps[j].lat_lngs) {
+                path.push(route.legs[i].steps[j].lat_lngs[k]);
+            }
         }
     }
     
