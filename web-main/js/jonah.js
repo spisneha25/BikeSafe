@@ -81,17 +81,17 @@ function defineIcons(latlngs, offset, bounds) {
 var lastZoom = -1;
 var lastResponse = undefined;
 
-window.onresize = function(event) {
+/*window.onresize = function(event) {
     var mapElem = document.getElementById("map-canvas");
     var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
     mapElem.style.height = (h - mapElem.offsetTop - 5) + "px";
-};
+};*/
 
 function initialize() {
-    var mapElem = document.getElementById("map-canvas");
+  /*  var mapElem = document.getElementById("map-canvas");
     var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
     mapElem.style.height = (h - mapElem.offsetTop - 5) + "px";
-    
+    */
   directionsDisplay = new google.maps.DirectionsRenderer();
   var chicago = new google.maps.LatLng(41.850033, -87.6500523);
   var mapOptions = {
@@ -160,7 +160,6 @@ function calcRoute() {
           travelMode: google.maps.TravelMode.BICYCLING,
           provideRouteAlternatives: true
       };
-    alert("I shall not subnmit");
       directionsService.route(request, function(response, status) {
           console.log(status);
         if (status == google.maps.DirectionsStatus.OK) {

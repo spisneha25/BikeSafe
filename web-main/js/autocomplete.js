@@ -17,11 +17,15 @@ function handleAutocompleteData(predictions, status) {
         return;
     }
     
+    var focused = $(":focus");
+    
     $("#autocomplete-results").empty()
         .append(jQuery.map(predictions,function(prediction) {
             return "<div class='prediction-div'>" + prediction.terms[0].value + (prediction.terms.length > 1 ? "<span class='region'>" + prediction.terms[1].value + "</span>" : "") + "</div>";
         }))
         .slideDown();
     
-    console.log(predictions);
+    $(".prediction-div").click(function() {
+        focused.val(predictions[$(".prediction-div").index(this)].description);
+    });
 }
