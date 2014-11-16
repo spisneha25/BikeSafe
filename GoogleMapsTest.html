@@ -77,9 +77,10 @@ function getDangerValue(latlng) {
         
 function defineIcons(latlngs, offset, bounds) {
     var icons = [];
-    for (var i = 0; i < latlngs.length-1; i++) {
+    var increment = !bounds ? 1 : 10;
+    for (var i = 0; i < latlngs.length-increment; i+=increment) {
         var latlng = latlngs[i];
-        var dist = getDistance(latlngs[i], latlngs[i+1]);
+        var dist = getDistance(latlngs[i], latlngs[i+increment]);
         
         if (!bounds || bounds.contains(latlng)) {
             var dv = getDangerValue(latlng);
