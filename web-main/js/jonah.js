@@ -2,7 +2,7 @@ var directionsDisplay;
 var directionsService = new google.maps.DirectionsService();
 var map;
 
-var rad = function(x) {
+var rad = function (x) {
   return x * Math.PI / 180;
 };
 
@@ -47,12 +47,12 @@ function mult(p, scl) {
         
         
 function getDangerValue(latlng) {
-    return Math.random()*10;
+    return Math.random() * 10;
 }
         
 function defineIcons(latlngs, offset, bounds) {
     var icons = [];
-    var increment = !bounds ? 1 : 10;
+    var increment = !bounds ? 1 : Math.floor(10/(map.getZoom() - 7));
     for (var i = 0; i < latlngs.length-increment; i+=increment) {
         var latlng = latlngs[i];
         var dist = getDistance(latlngs[i], latlngs[i+increment]);
@@ -63,7 +63,7 @@ function defineIcons(latlngs, offset, bounds) {
                 icon: {
                     path: 'M 0,-.1 0,.1',
                     strokeOpacity: 1,
-                    scale: 4,//dist,
+                    scale: dist/10000,
                     strokeWeight: dv*2.2,
                     strokeColor: '#' + (Math.floor(dv * 25)).toString(16) + 'a0a0'
                 },
@@ -71,7 +71,7 @@ function defineIcons(latlngs, offset, bounds) {
             });
         }
         
-        offset.off += 4;//dist;
+        offset.off += dist;
     }
     
     return icons;
@@ -110,7 +110,7 @@ function initialize() {
 
             for (var i in lastResponse.routes[0].legs) {
                 for (var j in lastResponse.routes[0].legs[i].steps) {
-                    icons = icons.concat(defineIcons(lastResponse.routes[0].legs[i].steps[j].lat_lngs, offset, extendedBounds));
+                    icons = icons.concat(defineIcons(lastResponse.routes[0].legs[i].steps[j].lat_lngs, offset, bounds));
                 }
             }
         } else if (lastZoom > 8 || lastZoom < 0) {
