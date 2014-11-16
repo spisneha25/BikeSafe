@@ -254,7 +254,7 @@ function calcRoute() {
                         complexPolys[routeNum].push({latlng:complexPoints[i],dangerValue:dangerValues[i]});
                     }
                     setUpMap();
-		});
+                }
             }
         }
       });
