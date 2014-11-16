@@ -74,8 +74,6 @@ function defineIcons(latlngs, offset, bounds) {
         offset.off += 4;//dist;
     }
     
-    console.log(icons);
-    
     return icons;
 }
 
