@@ -2,6 +2,8 @@ var directionsDisplay;
 var directionsService = new google.maps.DirectionsService();
 var map;
 
+
+
 var rad = function(x) {
   return x * Math.PI / 180;
 };
@@ -83,6 +85,10 @@ var lastZoom = -1;
 var lastResponse = undefined;
 
 function initialize() {
+    var mapElem = document.getElementById("map-canvas");
+    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+    mapElem.style.height = h - mapElem.offsetTop - 5;
+    
   directionsDisplay = new google.maps.DirectionsRenderer();
   var chicago = new google.maps.LatLng(41.850033, -87.6500523);
   var mapOptions = {
