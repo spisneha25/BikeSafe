@@ -35,6 +35,23 @@ body {
 /*    opacity: 0.9;*/
 }
 
+#autocomplete-results {
+    position: absolute;
+/*    height: 30px;*/
+    top: 100%;
+    left:-1px;
+    width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 5;
+    background-color: #fff;
+    padding: 5px;
+    border: 1px solid #999;
+/*    display: none;*/
+    height: 300px;
+    overflow: hidden;
+}
+
 label {
     display: inline-block;
     height: 100%;
@@ -67,7 +84,7 @@ input.txt {
 }
 
 button {
-    left:100%;
+    left:calc(100% + 5px);
     position:absolute;
     width:100px;
     height:calc(12px + 100%);

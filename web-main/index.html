@@ -5,8 +5,9 @@
         <meta charset="UTF-8">
         <script src="js/jquery-2.1.1.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
         <script src="js/jonah.js"></script>
+        <script src="js/autocomplete.js"></script>
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <link rel="stylesheet" href="css/style.css">
@@ -31,8 +32,9 @@
                         <div id="endDiv" class="tbDiv">
                             <input type="text" class="txt" name="end" id="end" autocomplete="off" spellcheck="false"></input>
                         </div>
-                        <button type="submit" value="Search" />
+                        <button type="submit" value="Search"><img src="data/search.svg" style="width:40px;height:40px;"></img></button>
                         </form>
+                        <div id="autocomplete-results"></div>
                     </div>
                     <div id="map-canvas"></div>
                 </div>
