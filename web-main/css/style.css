@@ -4,10 +4,10 @@ body {
 }
 
 #map-canvas {
+    position: relative;
+    top: -50px;
     height: 600px;
     width: 100%;
-    margin: 0px;
-    padding: 0px;
     border-radius: 10px;
     opacity: 0.9;
     border: 3px solid black;
@@ -15,7 +15,7 @@ body {
 #panel {
     position: relative;
     height: 30px;
-    top: 35px;
+    top: -15px;
     width: 340px;
     margin-left: auto;
     margin-right: auto;

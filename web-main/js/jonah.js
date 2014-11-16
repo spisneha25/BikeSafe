@@ -17,7 +17,7 @@ var getDistance = function(p1, p2) {
   var d = R * c;
   return d; // returns the distance in meter
 };
-        
+
 function add(p1, p2) {
     var lat = (p1.lat() + p2.lat()) % 180;
     if (lat > 90) {
@@ -42,14 +42,12 @@ function mult(p, scl) {
     }
     
     return new google.maps.LatLng(lat, lng);
-} 
-
-        
+}     
         
 function getDangerValue(latlng) {
     return Math.random() * 10;
 }
-        
+
 function defineIcons(latlngs, offset, bounds) {
     var icons = [];
     var increment = !bounds ? 1 : Math.floor(10/(map.getZoom() - 7));
@@ -80,10 +78,16 @@ function defineIcons(latlngs, offset, bounds) {
 var lastZoom = -1;
 var lastResponse = undefined;
 
+window.onresize = function(event) {
+    var mapElem = document.getElementById("map-canvas");
+    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+    mapElem.style.height = (h - mapElem.offsetTop - 5) + "px";
+};
+
 function initialize() {
     var mapElem = document.getElementById("map-canvas");
     var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-    mapElem.style.height = h - mapElem.offsetTop - 5;
+    mapElem.style.height = (h - mapElem.offsetTop - 5) + "px";
     
   directionsDisplay = new google.maps.DirectionsRenderer();
   var chicago = new google.maps.LatLng(41.850033, -87.6500523);
